@@ -10,9 +10,14 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Middleware\PermissionMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Front\CartController;
+use App\Http\Controllers\Front\OrdersController;
+use App\Http\Controllers\Front\ProductController as FrontProductController;
+use App\Http\Controllers\Front\StripeController;
+use App\Http\Controllers\Front\SubscriberController;
+use App\Http\Controllers\Front\UserController as FrontUserController;
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -29,7 +34,7 @@ Route::prefix('admin')->namespace('App\Http\Controllers\Admin')->group(function 
     // Reset Password
     Route::match(['get', 'post'], 'reset-password/{token}', [UserController::class, 'resetPassword'])->name('reset-password');
     // Route::group(['middleware' => ['auth']], function () {
-    Route::group(['middleware' => ['auth']], function () {
+    Route::group(['middleware' => ['auth', 'permission']], function () {
         // Dashboard
         Route::get('/dashboard', [UserController::class, 'index'])->name('admin.dashboard');
         // Logout
@@ -92,7 +97,7 @@ Route::prefix('admin')->namespace('App\Http\Controllers\Admin')->group(function 
         Route::get('stripe-index', [SettingsController::class, 'stripeIndex'])->name('stripe-index');
         Route::post('single-charge', [SettingsController::class, 'singelCharge'])->name('single-charge');
         Route::post('save-stripe-card', [SettingsController::class, 'saveStripeCard'])->name('save-stripe-card');
-    })->middleware(PermissionMiddleware::class);
+    });
 });
 
 // Vendor Routes
@@ -122,63 +127,63 @@ Route::prefix('admin')->namespace('App\Http\Controllers\Admin')->group(function 
 //     });
 // });
 
-// Route::any('/', function () {
-//     return redirect('/listing');
-// })->name('home');
+Route::any('/', function () {
+    return redirect('/listing');
+})->name('home');
 
-// // Front Routes
+// Front Routes
 
-// // Login
-// Route::match(['get','post'],'/log-in', [FrontUserController::class, 'login'])->name('log-in');
-// // Register
-// Route::match(['get', 'post'], '/register', [FrontUserController::class, 'register'])->name('register');
+// Login
+Route::match(['get','post'],'/log-in', [FrontUserController::class, 'login'])->name('log-in');
+// Register
+Route::match(['get', 'post'], '/register', [FrontUserController::class, 'register'])->name('register');
 
-// // Product Listing
-// Route::get('/listing', [FrontProductController::class, 'listing'])->name('listing');
-// // Product Details
-// Route::get('/product-details/{slug}/{id}', [FrontProductController::class, 'productDetails'])->name('product-details');
+// Product Listing
+Route::get('/listing', [FrontProductController::class, 'listing'])->name('listing');
+// Product Details
+Route::get('/product-details/{slug}/{id}', [FrontProductController::class, 'productDetails'])->name('product-details');
 
-// Route::group(['middleware' => ['auth']], function () {
-//     // Logout
-//     Route::controller(FrontUserController::class)->group(function () {
-//         Route::get('/log-out', 'logout')->name('log-out');
-//         Route::match(['get', 'post'], '/invite', 'invite')->name('invite');
-//         Route::match(['get', 'post'], '/profile', 'profile')->name('profile');
-//     });
+Route::group(['middleware' => ['auth']], function () {
+    // Logout
+    Route::controller(FrontUserController::class)->group(function () {
+        Route::get('/log-out', 'logout')->name('log-out');
+        Route::match(['get', 'post'], '/invite', 'invite')->name('invite');
+        Route::match(['get', 'post'], '/profile', 'profile')->name('profile');
+    });
 
-//     // Cart
-//     Route::controller(CartController::class)->group(function () {
-//         Route::match(['get', 'post'], '/cart', 'cart')->name('cart');
-//         Route::match(['get', 'post'], '/add-to-cart', 'addToCart')->name('add-to-cart');
-//     });
+    // Cart
+    Route::controller(CartController::class)->group(function () {
+        Route::match(['get', 'post'], '/cart', 'cart')->name('cart');
+        Route::match(['get', 'post'], '/add-to-cart', 'addToCart')->name('add-to-cart');
+    });
 
-//     // Product Payment Routes
-//     Route::controller(StripeController::class)->group(function () {
-//         Route::match(['get', 'post'], '/checkout', 'stripePost')->name('stripe.post');
-//         Route::get('stripe-checkout', 'checkoutSuccess')->name('stripe-checkout');
-//     });
+    // Product Payment Routes
+    Route::controller(StripeController::class)->group(function () {
+        Route::match(['get', 'post'], '/checkout', 'stripePost')->name('stripe.post');
+        Route::get('stripe-checkout', 'checkoutSuccess')->name('stripe-checkout');
+    });
 
-//     // Subscription Payment Routes
-//     Route::controller(SubscriberController::class)->group(function () {
-//         Route::match(['get', 'post'], '/subscribe', 'subscriberPost')->name('subscribe.post');
-//         Route::get('subscribe-checkout', 'subscriberCheckoutSuccess')->name('subscribe-checkout');
-//     });
+    // Subscription Payment Routes
+    Route::controller(SubscriberController::class)->group(function () {
+        Route::match(['get', 'post'], '/subscribe', 'subscriberPost')->name('subscribe.post');
+        Route::get('subscribe-checkout', 'subscriberCheckoutSuccess')->name('subscribe-checkout');
+    });
 
-//     // Orders Route
-//     Route::controller(OrdersController::class)->group(function () {
-//         Route::get('order-list/{type?}', 'orderList')->name('order-list');
-//     });
+    // Orders Route
+    Route::controller(OrdersController::class)->group(function () {
+        Route::get('order-list/{type?}', 'orderList')->name('order-list');
+    });
 
-//     // Rating And Review Routes
-//     Route::controller(FrontProductController::class)->group(function () {
-//         Route::match(['get', 'post'], '/rating-review/{id}', 'ratingReview')->name('rating-review');
-//     });
+    // Rating And Review Routes
+    Route::controller(FrontProductController::class)->group(function () {
+        Route::match(['get', 'post'], '/rating-review/{id}', 'ratingReview')->name('rating-review');
+    });
 
-//     // Community Discussion
-//     Route::controller(CommunityController::class)->group(function(){
-//         Route::get('/get-discussion', 'getDiscussion')->name('get-discussion');
-//         Route::post('/reply', 'reply')->name('reply');
-//     });
-// });
+    // Community Discussion
+    Route::controller(CommunityController::class)->group(function(){
+        Route::get('/get-discussion', 'getDiscussion')->name('get-discussion');
+        Route::post('/reply', 'reply')->name('reply');
+    });
+});
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

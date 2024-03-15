@@ -1,9 +1,9 @@
-<x-auth-layout title="Admin Login">
+<x-auth-layout title="Login">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <a href="../../index2.html" class="h1"><b>Admin</b> Login</a>
+                <h1 class="h1"><b>Admin</b> Login</h1>
             </div>
 
             <div class="card-body">
@@ -80,22 +80,9 @@
                     </div>
                 </form>
 
-                <!-- <div class="social-auth-links text-center mt-2 mb-3">
-        <a href="#" class="btn btn-block btn-primary">
-          <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
-        </a>
-        <a href="#" class="btn btn-block btn-danger">
-          <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
-        </a>
-      </div> -->
-                <!-- /.social-auth-links -->
-
                 <p class="mb-1">
                     <a href="{{ url('admin/forgot-password') }}">I forgot my password</a>
                 </p>
-                <!-- <p class="mb-0">
-                    <a href="register.html" class="text-center">Register a new membership</a>
-                </p> -->
             </div>
             <!-- /.card-body -->
         </div>
